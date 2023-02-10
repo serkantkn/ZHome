@@ -45,7 +45,7 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.ViewHold
         Glide.with(context).load(model.getAppIcon()).into(holder.binding.appIcon);
         holder.binding.appContainer.setOnClickListener(view -> listener.onClick(model));
         holder.binding.appContainer.setOnLongClickListener(view -> {
-            listener.onLongClick(model, holder.binding.menuContainer, holder.binding.appName);
+            listener.onLongClick(model, position, holder.binding.menuContainer, holder.binding.appName);
             return true;
         });
         holder.binding.optionPin.setOnClickListener(view -> {

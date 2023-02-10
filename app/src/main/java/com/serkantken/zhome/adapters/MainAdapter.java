@@ -39,7 +39,7 @@ public class MainAdapter extends RecyclerView.Adapter<MainAdapter.PinnedAppsView
         holder.binding.appName.setText(model.getAppName().toLowerCase(Locale.ROOT));
         holder.binding.pinnedContainer.setOnClickListener(view -> listener.onClick(model));
         holder.binding.pinnedContainer.setOnLongClickListener(view -> {
-            listener.onLongClick(model, holder.binding.menuContainer, holder.binding.appName);
+            listener.onLongClick(model, position, holder.binding.menuContainer, holder.binding.appName);
             return true;
         });
         holder.binding.optionUnpin.setOnClickListener(view -> deleteListener.onItemDeleted(model));

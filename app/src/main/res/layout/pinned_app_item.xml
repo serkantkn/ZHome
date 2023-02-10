@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/pinnedContainer"
+    android:background="@android:color/transparent"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -12,9 +13,9 @@
         android:text="appName"
         android:fontFamily="@font/jost_light"
         android:textColor="@color/textColorPrimary"
-        android:textSize="35sp"
+        android:textSize="50sp"
         android:singleLine="true"
-        android:layout_marginStart="75dp"
+        android:ellipsize="none"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="7dp"
         android:layout_marginTop="7dp"
@@ -41,7 +42,7 @@
             android:textColor="@color/white"
             android:textSize="25sp"
             android:singleLine="true"
-            android:layout_marginStart="75dp"
+            android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="7dp"
             android:layout_marginTop="7dp"

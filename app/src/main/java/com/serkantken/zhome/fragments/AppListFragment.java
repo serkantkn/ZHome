@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +20,7 @@ import com.serkantken.zhome.R;
 import com.serkantken.zhome.adapters.AppListAdapter;
 import com.serkantken.zhome.adapters.PageSwitcher;
 import com.serkantken.zhome.database.AppDatabase;
+import com.serkantken.zhome.database.RecentAppDatabase;
 import com.serkantken.zhome.databinding.FragmentAppListBinding;
 import com.serkantken.zhome.models.AppModel;
 
@@ -32,7 +32,8 @@ public class AppListFragment extends Fragment {
     private FragmentAppListBinding binding;
     private ArrayList<AppModel> installedApps;
     private AppListAdapter adapter;
-    private AppDatabase database;
+    private AppDatabase appDatabase;
+    private RecentAppDatabase recentAppDatabase;
     private ConstraintLayout selectedMenu;
     private TextView selectedText;
     private final PageSwitcher switcher;
@@ -46,6 +47,7 @@ public class AppListFragment extends Fragment {
                 selectedMenu = null;
                 selectedText = null;
             } else {
+                recentAppDatabase.recentAppsDAO().insert(appModel);
                 Intent launchAppIntent = requireContext().getPackageManager().getLaunchIntentForPackage(appModel.getPackageName());
                 if (launchAppIntent != null)
                 {
@@ -55,7 +57,7 @@ public class AppListFragment extends Fragment {
         }
 
         @Override
-        public void onLongClick(AppModel appModel, ConstraintLayout container, TextView text) {
+        public void onLongClick(AppModel appModel, int position, ConstraintLayout container, TextView text) {
             if (container.getVisibility() == View.VISIBLE) {
                 container.setVisibility(View.GONE);
                 text.setTextColor(getResources().getColor(R.color.textColorPrimary, null));
@@ -72,17 +74,17 @@ public class AppListFragment extends Fragment {
         }
     };
 
-    public AppListFragment(PageSwitcher switcher) {
+    public AppListFragment(ArrayList<AppModel> installedApps, PageSwitcher switcher) {
+        this.installedApps = installedApps;
         this.switcher = switcher;
     }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAppListBinding.inflate(getLayoutInflater());
-        database = AppDatabase.getInstance(requireContext());
-        installedApps = getInstalledApps();
-        installedApps.sort(Comparator.comparing(AppModel::getAppName));
-        adapter = new AppListAdapter(requireContext(), installedApps, listener, database, switcher);
+        appDatabase = AppDatabase.getInstance(requireContext());
+        recentAppDatabase = RecentAppDatabase.getInstance(requireContext());
+        adapter = new AppListAdapter(requireContext(), installedApps, listener, appDatabase, switcher);
         binding.appsRV.setAdapter(adapter);
 
         binding.appsRV.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -119,31 +121,9 @@ public class AppListFragment extends Fragment {
         return binding.getRoot();
     }
 
-    private ArrayList<AppModel> getInstalledApps() {
-        ArrayList<AppModel> list = new ArrayList<>();
-
-        Intent intent = new Intent(Intent.ACTION_MAIN, null);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-        List<ResolveInfo> untreatedAppList = requireContext().getPackageManager().queryIntentActivities(intent, 0);
-
-        for (ResolveInfo app : untreatedAppList)
-        {
-            String appName = app.loadLabel(requireContext().getPackageManager()).toString();
-            String appPackageName = app.activityInfo.packageName;
-            Drawable appImage = app.activityInfo.loadIcon(requireContext().getPackageManager());
-            AppModel appModel = new AppModel(appName, appPackageName, appImage);
-            if (!list.contains(appModel))
-            {
-                list.add(appModel);
-            }
-        }
-
-        return list;
-    }
-
     @Override
-    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
-        super.onViewStateRestored(savedInstanceState);
-        binding.appsRV.scrollToPosition(0);
+    public void onResume() {
+        super.onResume();
+        binding.appsRV.smoothScrollToPosition(0);
     }
 }
